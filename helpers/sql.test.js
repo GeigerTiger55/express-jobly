@@ -19,9 +19,8 @@ describe("sqlForPartialUpdate", function () {
       const dataToUpdate = {};
       const jsToSql = {lastName: "last_name"};
       let result = sqlForPartialUpdate(dataToUpdate, jsToSql);
-      // TODO:
       throw new Error(`Didn't throw error no data passed in,
-      this test failed`)
+      this test failed`);
     } catch (error) {
       expect(error instanceof BadRequestError).toBeTruthy();
     }
