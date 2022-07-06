@@ -42,9 +42,8 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
 /** GET /  =>
  *   { companies: [ { handle, name, description, numEmployees, logoUrl }, ...] }
  *
- * TODO: Update to cover filters
- * 
- * Can filter on provided search filters:
+ *
+ * Can filter on provided search filters which are passed in the query string:
  * - minEmployees
  * - maxEmployees
  * - nameLike (will find case-insensitive, partial matches)
@@ -53,8 +52,8 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  */
 
 router.get("/", async function (req, res, next) {
-  const { name, minEmployees, maxEmployees } = req.query; 
-  const companies = await Company.findAll({ name, minEmployees, maxEmployees });
+  const { nameLike, minEmployees, maxEmployees } = req.query;
+  const companies = await Company.findAll({ nameLike, minEmployees, maxEmployees });
   return res.json({ companies });
 });
 

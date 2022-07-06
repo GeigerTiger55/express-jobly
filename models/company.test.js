@@ -87,7 +87,7 @@ describe("findAll", function () {
   });
 
   test("works: with all filters", async function () {
-    let filters = { minEmployees: 0, maxEmployees: 2, name: "2" };
+    let filters = { minEmployees: 0, maxEmployees: 2, nameLike: "2" };
     let companies = await Company.findAll(filters);
     expect(companies).toEqual([
       {
@@ -130,6 +130,26 @@ describe("findAll", function () {
       } catch(error){
         expect(error instanceof BadRequestError).toBeTruthy();
       }
+  });
+
+  test("throws error if minEmployees is not a number", async function () {
+    try {
+      let filters = { minEmployees: "ab", maxEmployees: 2, nameLike: "2"};
+      let companies = await Company.findAll(filters);
+      throw new Error("Didn't throw error for invalid minEmployess");
+    } catch (error){
+      expect (error instanceof BadRequestError).toBeTruthy();
+    }
+  });
+
+  test("throws error if maxEmployees is not a number", async function () {
+    try {
+      let filters = { minEmployees: 20, maxEmployees: "ab", nameLike: "2"};
+      let companies = await Company.findAll(filters);
+      throw new Error("Didn't throw error for invalid maxEmployess");
+    } catch (error){
+      expect (error instanceof BadRequestError).toBeTruthy();
+    }
   });
 
 });

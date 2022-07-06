@@ -51,14 +51,17 @@ class Company {
 
   /** Find all companies.
    * Accepts:
-   * - filters object
-   *  { minEmployees: [number], maxEmployees: [number], name: [string]}
+   * - optional filters object, each filter is also optional
+   *  { minEmployees: [number], maxEmployees: [number], nameLike: [string]}
    *
-   * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
+   * Note: minEmployees must be less than maxEmployees
+   *
+   * Returns:
+   *  [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
-  
+
   static async findAll(filters) {
-    
+
     let queryString = `SELECT handle,
         name,
         description,
@@ -70,7 +73,7 @@ class Company {
 
     if (filters) {
 
-      const { minEmployees, maxEmployees, name } = filters;
+      const { minEmployees, maxEmployees, nameLike } = filters;
 
       if ((minEmployees && maxEmployees) && minEmployees > maxEmployees) {
         throw new BadRequestError("Min employees must be less than max employees");
@@ -79,12 +82,16 @@ class Company {
       let whereArgs = [];
       if (Number(minEmployees)) {
         whereArgs.push(`num_employees >= ${minEmployees}`);
+      } else if (minEmployees) {
+        throw new BadRequestError("Min employees needs to be a number.");
       }
       if (Number(maxEmployees)) {
         whereArgs.push(`num_employees <= ${maxEmployees}`);
+      } else if (maxEmployees) {
+        throw new BadRequestError("Max employees needs to be a number.");
       }
-      if (name) {
-        whereArgs.push(`name ilike '%${name}%'`);
+      if (nameLike) {
+        whereArgs.push(`name ilike '%${nameLike}%'`);
       }
       whereQuery += whereArgs.join(' AND ');
 
