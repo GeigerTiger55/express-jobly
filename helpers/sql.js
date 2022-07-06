@@ -4,8 +4,8 @@ const { BadRequestError } = require("../expressError");
 /** Creates sql script to map fields that are being updated to their new values.
  * 
  * Accepts:
- * - "dataToUpdate" includes (JavaScript) key to value object of fields and the 
- * new replacement values:
+ * - "dataToUpdate" is a key to value object of database fields (in JavaScript 
+ * syntax) and the new replacement values:
  *  EX: { lastName: "NewLastName", email: "newemail@g.com" }
  * 
  * - "jsToSql" is an object containing keys in JavaScript syntax mapped to values
