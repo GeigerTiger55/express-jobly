@@ -254,7 +254,7 @@ describe("PATCH /companies/:handle", function () {
         name: "C1-new",
       })
       .set("authorization", `Bearer ${u1Token}`);
-      expect(resp.statusCode).toEqual(401);
+    expect(resp.statusCode).toEqual(401);
   });
 
 

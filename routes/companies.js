@@ -21,7 +21,7 @@ const router = new express.Router();
  *
  * Returns { handle, name, description, numEmployees, logoUrl }
  *
- * Authorization required: login
+ * Authorization required: admin logged in
  */
 
 router.post("/", ensureAdminLoggedIn, async function (req, res, next) {
@@ -50,11 +50,11 @@ router.post("/", ensureAdminLoggedIn, async function (req, res, next) {
  *
  * Ignores any other params contained in the query string
  *
- * Authorization required: none
- *
  * Checks if valid filters and throws an error if invalid filters exist
  *
  * Throws an error if minEmployees or maxEmployees are not numbers
+ * 
+ * Authorization required: none
  */
 
 router.get("/", async function (req, res, next) {
@@ -133,7 +133,7 @@ router.patch("/:handle", ensureAdminLoggedIn, async function (req, res, next) {
 
 /** DELETE /[handle]  =>  { deleted: handle }
  *
- * Authorization: login
+ * Authorization: admin logged in
  */
 
 router.delete("/:handle", ensureAdminLoggedIn, async function (req, res, next) {
