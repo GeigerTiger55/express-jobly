@@ -71,6 +71,13 @@ describe("_sqlForFilters", function(){
     expect(filterValues).toEqual([1, 20, "%apple%"]);
   });
 
+  test("works with no filters", async function(){
+    const {whereQuery, filterValues} = await Company._sqlForFilters();
+
+    expect(whereQuery).toEqual("");
+    expect(filterValues).toEqual([]);
+  });
+
 });
 
 /************************************** findAll */

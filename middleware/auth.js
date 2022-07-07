@@ -63,7 +63,6 @@ function ensureAdminLoggedIn(req, res, next) {
  * If not, raises Unauthorized.
  */
 function ensureAdminOrCorrectUser(req, res, next) {
-  console.log('******params', req.params.username);
   try {
     if (!res.locals.user || !(res.locals.user.isAdmin
       || res.locals.user.username === req.params.username)) {
