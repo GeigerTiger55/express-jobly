@@ -87,7 +87,7 @@ describe("findAll", function () {
   });
 
   test("works: with all filters", async function () {
-    let filters = { minEmployees: 0, maxEmployees: 2, nameLike: "2" };
+    let filters = { minEmployees: 1, maxEmployees: 2, nameLike: "2" };
     let companies = await Company.findAll(filters);
     expect(companies).toEqual([
       {

@@ -71,8 +71,10 @@ class Company {
 
     let whereQuery = " WHERE ";
 
-    if (filters) {
+    let filterValues = [];
+    let index = 1;
 
+    if (filters) {
       const { minEmployees, maxEmployees, nameLike } = filters;
 
       if ((minEmployees && maxEmployees) && minEmployees > maxEmployees) {
@@ -81,27 +83,37 @@ class Company {
 
       let whereArgs = [];
       if (Number(minEmployees)) {
-        whereArgs.push(`num_employees >= ${minEmployees}`);
+        whereArgs.push(`num_employees >= $${index}`);
+        filterValues.push(minEmployees);
+        index += 1;
       } else if (minEmployees) {
         throw new BadRequestError("Min employees needs to be a number.");
       }
       if (Number(maxEmployees)) {
-        whereArgs.push(`num_employees <= ${maxEmployees}`);
+        whereArgs.push(`num_employees <= $${index}`);
+        filterValues.push(maxEmployees);
+        index += 1;
       } else if (maxEmployees) {
         throw new BadRequestError("Max employees needs to be a number.");
       }
       if (nameLike) {
-        whereArgs.push(`name ilike '%${nameLike}%'`);
+        whereArgs.push(`name ILIKE $${index}`);
+        filterValues.push(`%${nameLike}%`);
+        index += 1;
       }
       whereQuery += whereArgs.join(' AND ');
 
-      queryString += whereQuery;
+      if (filterValues.length > 0) {
+        queryString += whereQuery;
+      }
     }
 
     queryString += ` ORDER BY name`;
     console.log('****queryString', queryString);
 
-    const companiesRes = await db.query(queryString);
+    console.log("*******filter",filterValues);
+
+    const companiesRes = await db.query(queryString, filterValues);
     return companiesRes.rows;
   }
 
