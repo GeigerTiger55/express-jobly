@@ -49,6 +49,37 @@ class Company {
     return company;
   }
 
+  static _sqlForFilters(filters={}) {
+    const { minEmployees, maxEmployees, nameLike } = filters;
+    let filterValues = [];
+    let whereArgs = [];
+    let index = 1;
+
+    if (minEmployees !== undefined) {
+      whereArgs.push(`num_employees >= $${index}`);
+      filterValues.push(minEmployees);
+      index += 1;
+    } 
+
+    if (maxEmployees !== undefined) {
+      whereArgs.push(`num_employees <= $${index}`);
+      filterValues.push(maxEmployees);
+      index += 1;
+    }
+
+    if (nameLike !== undefined) {
+      whereArgs.push(`name ILIKE $${index}`);
+      filterValues.push(`%${nameLike}%`);
+      index += 1;
+    }
+
+    const whereQuery = whereArgs.length > 0 ? 
+      "WHERE " + whereArgs.join(' AND ') : "";
+  
+    return {whereQuery, filterValues};
+  
+  }
+
   /** Find all companies.
    * Accepts:
    * - optional filters object, each filter is also optional
@@ -60,23 +91,24 @@ class Company {
    *  [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-  static async findAll(filters) {
+  static async findAll(filters = {}) {
+    const { minEmployees, maxEmployees, nameLike } = filters;
+
+    if (minEmployees > maxEmployees) {
+      throw new BadRequestError("Min employees must be less than max employees");
+    }
+
+    const {whereQuery, filterValues} = this._sqlForFilters({
+      minEmployees, maxEmployees, nameLike 
+    });
 
     let queryString = `SELECT handle,
         name,
         description,
         num_employees AS "numEmployees",
         logo_url AS "logoUrl"
-      FROM companies`;
-
-    if (Object.keys(filters).length > 0) {
-      var {whereQuery, filterValues} = sqlForFilters(filters);
-      queryString += whereQuery;
-    }
-
-    // index variable could be length of args
-
-    queryString += ` ORDER BY name`;
+      FROM companies ${whereQuery}
+      ORDER BY name`;
 
     const companiesRes = await db.query(queryString, filterValues);
     return companiesRes.rows;

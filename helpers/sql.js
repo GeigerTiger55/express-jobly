@@ -41,50 +41,5 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
 }
 
 
-function sqlForFilters(filters) {
-  let whereQuery = " WHERE ";
-
-  let filterValues = [];
-  let index = 1;
-
-  const { minEmployees, maxEmployees, nameLike } = filters;
-
-  if ((minEmployees && maxEmployees) && minEmployees > maxEmployees) {
-    throw new BadRequestError("Min employees must be less than max employees");
-    // TODO: check if min/max employees not equal to zero
-  }
-
-  let whereArgs = [];
-  // TODO: take numbers off
-  // check typeof min & max and throw error if not nums
-  if (Number(minEmployees)) {
-    whereArgs.push(`num_employees >= $${index}`);
-    filterValues.push(minEmployees);
-    index += 1;
-    // if not zero similiar prob to above
-  } else if (minEmployees) {
-    throw new BadRequestError("Min employees needs to be a number.");
-  }
-  if (Number(maxEmployees)) {
-    whereArgs.push(`num_employees <= $${index}`);
-    filterValues.push(maxEmployees);
-    index += 1;
-  } else if (maxEmployees) {
-    throw new BadRequestError("Max employees needs to be a number.");
-  }
-  if (nameLike) {
-    whereArgs.push(`name ILIKE $${index}`);
-    filterValues.push(`%${nameLike}%`);
-    index += 1;
-  }
-  whereQuery += whereArgs.join(' AND ');
-
-
-
-}
-
-
-
-
-module.exports = { sqlForPartialUpdate, sqlForFilters };
+module.exports = { sqlForPartialUpdate };
 

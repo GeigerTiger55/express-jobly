@@ -69,27 +69,21 @@ router.get("/", async function (req, res, next) {
   if (nameLike) {
     filters.nameLike = nameLike;
   }
-// TODO: use isNaN here to check if is num
-  if (Number(minEmployees)) {
+
+  if (!isNaN(minEmployees)) {
     filters.minEmployees = Number(minEmployees);
-  } else if (minEmployees) {
+  } else if (minEmployees !== undefined) {
     throw new BadRequestError("Min employees needs to be a number.");
   }
 
-  if (Number(maxEmployees)) {
+  if (!isNaN(maxEmployees)) {
     filters.maxEmployees = Number(maxEmployees);
-  } else if (maxEmployees) {
+  } else if (maxEmployees !== undefined) {
     throw new BadRequestError("Max employees needs to be a number.");
   }
 
-  if ((Number(maxEmployees) && Number(minEmployees))
-    && Number(maxEmployees) < Number(minEmployees)) {
-    throw new BadRequestError("Min employees is greater than max employees.");
-  }
-
-
   let companies;
-// nice place to use terenary
+  // nice place to use ternary
   if (Object.keys(filters).length > 0) {
     companies = await Company.findAll(filters);
   } else {
