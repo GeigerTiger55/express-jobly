@@ -1,6 +1,7 @@
 "use strict";
 
 const request = require("supertest");
+const { BadRequestError } = require("../expressError");
 
 const db = require("../db");
 const app = require("../app");
@@ -114,8 +115,42 @@ describe("GET /companies", function () {
     });
   });
 
-  // TODO: ADD more tests !!!
+  test("works with one filter", async function () {
+    const resp = await request(app).get(
+      "/companies?maxEmployees=2"
+    );
+    expect(resp.body).toEqual({
+      companies:
+        [
+          {
+            handle: "c1",
+            name: "C1",
+            description: "Desc1",
+            numEmployees: 1,
+            logoUrl: "http://c1.img",
+          },
+          {
+            handle: "c2",
+            name: "C2",
+            description: "Desc2",
+            numEmployees: 2,
+            logoUrl: "http://c2.img",
+          },
+        ],
+    });
+  });
 
+  test("returns error if minEmployees not numeric", async function () {
+    const resp = await request(app).get("/companies/?minEmployees=a");
+    expect(resp.statusCode).toEqual(400);
+    expect(resp.body.error.message).toEqual("Min employees needs to be a number.");
+  });
+
+  test("returns error if maxEmployees not numeric", async function () {
+    const resp = await request(app).get("/companies/?maxEmployees=a");
+    expect(resp.statusCode).toEqual(400);
+    expect(resp.body.error.message).toEqual("Max employees needs to be a number.");
+  });
 
   test("fails: test next() handler", async function () {
     // there's no normal failure event which will cause this route to fail ---

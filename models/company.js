@@ -109,9 +109,6 @@ class Company {
     }
 
     queryString += ` ORDER BY name`;
-    console.log('****queryString', queryString);
-
-    console.log("*******filter",filterValues);
 
     const companiesRes = await db.query(queryString, filterValues);
     return companiesRes.rows;

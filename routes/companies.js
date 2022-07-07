@@ -53,14 +53,17 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
 
 router.get("/", async function (req, res, next) {
   const { nameLike, minEmployees, maxEmployees } = req.query;
+  let filters = {};
 
   if (nameLike) {
     filters.nameLike = nameLike;
   }
 
   if (Number(minEmployees)) {
+    console.log('****minEmployee numeric', minEmployees);
     filters.minEmployees = Number(minEmployees);
   } else if (minEmployees) {
+    console.log('****minEmployee not numeric', minEmployees);
     throw new BadRequestError("Min employees needs to be a number.");
   }
 
@@ -70,7 +73,13 @@ router.get("/", async function (req, res, next) {
     throw new BadRequestError("Max employees needs to be a number.");
   }
 
-  const companies = await Company.findAll(filters);
+  let companies;
+
+  if(Object.keys(filters).length > 0){
+    companies = await Company.findAll(filters);
+  } else {
+    companies = await Company.findAll();
+  }
   return res.json({ companies });
 });
 
