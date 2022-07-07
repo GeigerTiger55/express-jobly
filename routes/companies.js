@@ -28,7 +28,7 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
   const validator = jsonschema.validate(
     req.body,
     companyNewSchema,
-    {required: true}
+    { required: true }
   );
   if (!validator.valid) {
     const errs = validator.errors.map(e => e.stack);
@@ -43,16 +43,27 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  *   { companies: [ { handle, name, description, numEmployees, logoUrl }, ...] }
  *
  *
- * Can filter on provided search filters which are passed in the query string:
+ * Can filter on below search filters which are passed in the query string:
  * - minEmployees
  * - maxEmployees
  * - nameLike (will find case-insensitive, partial matches)
  *
+ * Ignores any other params contained in the query string
+ *
  * Authorization required: none
+ *
+ * Checks if valid filters and throws an error if invalid filters exist
+ *
+ * Throws an error if minEmployees or maxEmployees are not numbers
  */
 
 router.get("/", async function (req, res, next) {
-  const { nameLike, minEmployees, maxEmployees } = req.query;
+  const { nameLike, minEmployees, maxEmployees, ...invalidFilters } = req.query;
+
+  if (Object.keys(invalidFilters).length > 0) {
+    throw new BadRequestError("Invalid filters given.");
+  }
+
   let filters = {};
 
   if (nameLike) {
@@ -60,10 +71,8 @@ router.get("/", async function (req, res, next) {
   }
 
   if (Number(minEmployees)) {
-    console.log('****minEmployee numeric', minEmployees);
     filters.minEmployees = Number(minEmployees);
   } else if (minEmployees) {
-    console.log('****minEmployee not numeric', minEmployees);
     throw new BadRequestError("Min employees needs to be a number.");
   }
 
@@ -73,9 +82,15 @@ router.get("/", async function (req, res, next) {
     throw new BadRequestError("Max employees needs to be a number.");
   }
 
+  if ((Number(maxEmployees) && Number(minEmployees))
+    && Number(maxEmployees) < Number(minEmployees)) {
+    throw new BadRequestError("Min employees is greater than max employees.");
+  }
+
+
   let companies;
 
-  if(Object.keys(filters).length > 0){
+  if (Object.keys(filters).length > 0) {
     companies = await Company.findAll(filters);
   } else {
     companies = await Company.findAll();
@@ -111,7 +126,7 @@ router.patch("/:handle", ensureLoggedIn, async function (req, res, next) {
   const validator = jsonschema.validate(
     req.body,
     companyUpdateSchema,
-    {required:true}
+    { required: true }
   );
   if (!validator.valid) {
     const errs = validator.errors.map(e => e.stack);

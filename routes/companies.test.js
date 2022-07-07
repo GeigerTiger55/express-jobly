@@ -152,6 +152,19 @@ describe("GET /companies", function () {
     expect(resp.body.error.message).toEqual("Max employees needs to be a number.");
   });
 
+  test("returns error if minEmployees > maxEmployees", async function () {
+    const resp = await request(app).get("/companies/?maxEmployees=4&minEmployees=6");
+    expect(resp.statusCode).toEqual(400);
+    expect(resp.body.error.message).toEqual("Min employees is greater than max employees.");
+  });
+
+  test("returns error if invalid filters given", async function () {
+    const resp = await request(app).get("/companies/?maxEmployees=4&fakeFilter=fake");
+    expect(resp.statusCode).toEqual(400);
+    expect(resp.body.error.message).toEqual("Invalid filters given.");
+  });
+
+
   test("fails: test next() handler", async function () {
     // there's no normal failure event which will cause this route to fail ---
     // thus making it hard to test that the error-handler works with it. This
