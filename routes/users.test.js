@@ -377,16 +377,16 @@ describe("DELETE /users/:username", function () {
     expect(resp.body).toEqual({ deleted: "u1" });
   });
 
-  test("unauth for anon", async function () {
-    const resp = await request(app)
-      .delete(`/users/u1`);
-    expect(resp.statusCode).toEqual(401);
-  });
-
   test("unauth for non-admin not same user", async function () {
     const resp = await request(app)
       .delete(`/users/u1`)
       .set("authorization", `Bearer ${u3Token}`);
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("unauth for anon", async function () {
+    const resp = await request(app)
+      .delete(`/users/u1`);
     expect(resp.statusCode).toEqual(401);
   });
 

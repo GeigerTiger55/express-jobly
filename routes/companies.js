@@ -53,7 +53,7 @@ router.post("/", ensureAdminLoggedIn, async function (req, res, next) {
  * Checks if valid filters and throws an error if invalid filters exist
  *
  * Throws an error if minEmployees or maxEmployees are not numbers
- * 
+ *
  * Authorization required: none
  */
 
@@ -113,7 +113,7 @@ router.get("/:handle", async function (req, res, next) {
  *
  * Returns { handle, name, description, numEmployees, logo_url }
  *
- * Authorization required: login
+ * Authorization required: admin logged in
  */
 
 router.patch("/:handle", ensureAdminLoggedIn, async function (req, res, next) {
