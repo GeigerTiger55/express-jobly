@@ -69,7 +69,7 @@ router.get("/", async function (req, res, next) {
   if (nameLike) {
     filters.nameLike = nameLike;
   }
-
+// TODO: use isNaN here to check if is num
   if (Number(minEmployees)) {
     filters.minEmployees = Number(minEmployees);
   } else if (minEmployees) {
@@ -89,7 +89,7 @@ router.get("/", async function (req, res, next) {
 
 
   let companies;
-
+// nice place to use terenary
   if (Object.keys(filters).length > 0) {
     companies = await Company.findAll(filters);
   } else {

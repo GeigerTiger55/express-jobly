@@ -2,7 +2,7 @@
 
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
-const { sqlForPartialUpdate } = require("../helpers/sql");
+const { sqlForPartialUpdate, sqlForFilters } = require("../helpers/sql");
 
 /** Related functions for companies. */
 
@@ -69,44 +69,12 @@ class Company {
         logo_url AS "logoUrl"
       FROM companies`;
 
-    let whereQuery = " WHERE ";
-
-    let filterValues = [];
-    let index = 1;
-
-    if (filters) {
-      const { minEmployees, maxEmployees, nameLike } = filters;
-
-      if ((minEmployees && maxEmployees) && minEmployees > maxEmployees) {
-        throw new BadRequestError("Min employees must be less than max employees");
-      }
-
-      let whereArgs = [];
-      if (Number(minEmployees)) {
-        whereArgs.push(`num_employees >= $${index}`);
-        filterValues.push(minEmployees);
-        index += 1;
-      } else if (minEmployees) {
-        throw new BadRequestError("Min employees needs to be a number.");
-      }
-      if (Number(maxEmployees)) {
-        whereArgs.push(`num_employees <= $${index}`);
-        filterValues.push(maxEmployees);
-        index += 1;
-      } else if (maxEmployees) {
-        throw new BadRequestError("Max employees needs to be a number.");
-      }
-      if (nameLike) {
-        whereArgs.push(`name ILIKE $${index}`);
-        filterValues.push(`%${nameLike}%`);
-        index += 1;
-      }
-      whereQuery += whereArgs.join(' AND ');
-
-      if (filterValues.length > 0) {
-        queryString += whereQuery;
-      }
+    if (Object.keys(filters).length > 0) {
+      var {whereQuery, filterValues} = sqlForFilters(filters);
+      queryString += whereQuery;
     }
+
+    // index variable could be length of args
 
     queryString += ` ORDER BY name`;
 
