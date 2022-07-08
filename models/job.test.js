@@ -8,6 +8,7 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  jobIds,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -69,5 +70,101 @@ describe("findAllJobs", function () {
         company_handle: "c2",
       },
     ]);
+  });
+});
+
+/************************************** get */
+
+describe("get", function () {
+  test("works", async function () {
+    console.log('*****get works test', jobIds[0]);
+    let job = await Job.get(jobIds[0]);
+    expect(job).toEqual({
+      title: "job1",
+      salary: 100,
+      equity: "0.1",
+      company_handle: "c1",
+    });
+  });
+
+  test("not found if no such job", async function () {
+    try {
+      await Job.get("1");
+      throw new Error("failed not found test");
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
+
+/************************************** update */
+
+describe("update", function () {
+  const updateData = {
+    title: "New Job2",
+    salary: 500,
+    equity: "0.02",
+  };
+
+  test("works", async function () {
+    let job = await Job.update(jobIds[1], updateData);
+    expect(job).toEqual({
+      company_handle: "c2",
+      ...updateData,
+    });
+
+    const result = await db.query(
+      `SELECT title, salary, equity, company_handle
+           FROM jobs
+           WHERE id = '${jobIds[1]}'`);
+    expect(result.rows).toEqual([{
+      title: "New Job2",
+      salary: 500,
+      equity: "0.02",
+      company_handle: "c2",
+    }]);
+  });
+
+  test("works: null fields", async function () {
+    const updateDataSetNulls = {
+      title: "New Job2 Again",
+      salary: null,
+      equity: null,
+    };
+
+    let job = await Job.update(jobIds[1], updateDataSetNulls);
+    expect(job).toEqual({
+      company_handle: "c2",
+      ...updateDataSetNulls,
+    });
+
+    const result = await db.query(
+      `SELECT title, salary, equity, company_handle
+           FROM jobs
+           WHERE id = '${jobIds[1]}'`);
+    expect(result.rows).toEqual([{
+      title: "New Job2 Again",
+      salary: null,
+      equity: null,
+      company_handle: "c2",
+    }]);
+  });
+
+  test("not found if no such job", async function () {
+    try {
+      await Job.update("1", updateData);
+      throw new Error('not found test failed');
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+  test("bad request with no data", async function () {
+    try {
+      await Job.update(jobIds[1], {});
+      throw new Error('no data test failed');
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
   });
 });
