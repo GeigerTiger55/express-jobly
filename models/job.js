@@ -128,6 +128,23 @@ class Job {
     return job;
   }
 
+  /** Delete given job from database; returns undefined.
+   *
+   * Throws NotFoundError if job not found.
+   **/
+
+   static async remove(id) {
+    const result = await db.query(
+      `DELETE
+           FROM jobs
+           WHERE id = $1
+           RETURNING id`,
+      [id]);
+    const job = result.rows[0];
+
+    if (!job) throw new NotFoundError(`No job: ${id}`);
+  }
+
 }
 
 

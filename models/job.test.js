@@ -167,4 +167,25 @@ describe("update", function () {
       expect(err instanceof BadRequestError).toBeTruthy();
     }
   });
+
+  /************************************** remove */
+
+  describe("remove", function () {
+    test("works", async function () {
+      await Job.remove(jobIds[2]);
+      const res = await db.query(
+        `SELECT id FROM jobs WHERE id=${jobIds[2]}`);
+      expect(res.rows.length).toEqual(0);
+    });
+
+    test("not found if no such job", async function () {
+      try {
+        await Job.remove("1");
+        throw new Error("not found if no such job")
+      } catch (err) {
+        expect(err instanceof NotFoundError).toBeTruthy();
+      }
+    });
+  });
+
 });
